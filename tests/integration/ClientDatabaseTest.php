@@ -191,14 +191,6 @@ class ClientDatabaseTest extends TestCase
     }
 
     /** @test */
-    public function it_checks_if_a_query_is_a_select_statement()
-    {
-        $this->assertFalse(
-            $this->sut->isSelectQuery("UPDATE users SET name='Amo' WHERE name='Fred' LIMIT 1;")
-        );
-    }
-
-    /** @test */
     public function it_can_only_execute_select_queries()
     {
         $this->setExpectedException('\App\Exceptions\InvalidQueryTypeException');
@@ -206,6 +198,22 @@ class ClientDatabaseTest extends TestCase
         $this->sut->connect($this->validCredentials);
         $results = $this->sut->execute("UPDATE users SET name='Amo' WHERE name='Fred' LIMIT 1;");
         $this->assertCount(0, $results);
+    }
+
+    /** @test */
+    public function it_handles_malformed_select_queries_gracefully()
+    {
+        $this->setExpectedException('\App\Exceptions\InvalidQueryException');
+        $this->sut->connect($this->validCredentials);
+        $results = $this->sut->execute('SELECT sadsafs FROM asfaf LIMIT 3;');
+    }
+
+    /** @test */
+    public function it_checks_if_a_query_is_a_select_statement()
+    {
+        $this->assertFalse(
+            $this->sut->isSelectQuery("UPDATE users SET name='Amo' WHERE name='Fred' LIMIT 1;")
+        );
     }
 
     /** @test */
@@ -264,11 +272,4 @@ class ClientDatabaseTest extends TestCase
         );
     }
 
-    /** @test */
-    public function it_handles_malformed_select_queries_gracefully()
-    {
-        $this->setExpectedException('\App\Exceptions\InvalidQueryException');
-        $this->sut->connect($this->validCredentials);
-        $results = $this->sut->execute('SELECT sadsafs FROM asfaf LIMIT 3;');
-    }
 }
