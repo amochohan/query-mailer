@@ -100,6 +100,7 @@ class ClientDatabase
             $query = $this->applySemiColon($query);
 
             try {
+                $this->setFetchMethod(\PDO::FETCH_ASSOC);
                 return $this->db->connection('client')->select($query);
             } catch (\Exception $e) {
                 $this->errors[]['code'] = $e->getCode();
@@ -188,6 +189,12 @@ class ClientDatabase
     {
         $this->credentials = $config;
         $this->configRepository->set('database.connections.client', $config);
+        return $this;
+    }
+
+    public function setFetchMethod($method)
+    {
+        $this->db->connection('client')->setFetchMode($method);
         return $this;
     }
 }
